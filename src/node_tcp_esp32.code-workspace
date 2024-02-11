@@ -1,0 +1,71 @@
+{
+	"folders": [
+		{
+			"path": "..\\..\\..\\..\\GitHub\\node_tcp_esp32"
+		},
+		{
+			"name": "ESP32_DMA_ADC_TEST",
+			"path": ".."
+		},
+		{
+			"name": "ESP_IDF_ADC_DMA_TEST",
+			"path": "..\\..\\ESP_IDF_ADC_DMA_TEST"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"memory": "c",
+			"mutex": "c",
+			"shared_mutex": "c",
+			"esp32-hal-uart.h": "c",
+			"esp32-hal.h": "c",
+			"algorithm": "cpp",
+			"array": "cpp",
+			"atomic": "cpp",
+			"charconv": "cpp",
+			"chrono": "cpp",
+			"codecvt": "cpp",
+			"concepts": "cpp",
+			"cstddef": "cpp",
+			"cstdio": "cpp",
+			"cstdlib": "cpp",
+			"cwchar": "cpp",
+			"deque": "cpp",
+			"format": "cpp",
+			"fstream": "cpp",
+			"functional": "cpp",
+			"future": "cpp",
+			"initializer_list": "cpp",
+			"iomanip": "cpp",
+			"istream": "cpp",
+			"iterator": "cpp",
+			"locale": "cpp",
+			"new": "cpp",
+			"optional": "cpp",
+			"random": "cpp",
+			"sstream": "cpp",
+			"streambuf": "cpp",
+			"string": "cpp",
+			"system_error": "cpp",
+			"thread": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"unordered_map": "cpp",
+			"utility": "cpp",
+			"vector": "cpp",
+			"xhash": "cpp",
+			"xiosbase": "cpp",
+			"xlocale": "cpp",
+			"xlocbuf": "cpp",
+			"xlocinfo": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xlocnum": "cpp",
+			"xloctime": "cpp",
+			"xmemory": "cpp",
+			"xstring": "cpp",
+			"xutility": "cpp",
+			"cstring": "cpp"
+		}
+	}
+}
