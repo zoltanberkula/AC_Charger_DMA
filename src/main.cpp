@@ -3,7 +3,7 @@
 
 #define DEF_BAUD 115200
 
-//#define USE_ARDUINO
+// #define USE_ARDUINO
 #define USE_RTOS
 
 #ifdef USE_RTOS
@@ -21,6 +21,9 @@
 
 #endif
 
+/* The code is defining an array `channel` of type `adc1_channel_t` with 4 elements. Each element
+represents a specific ADC channel on the ESP32 microcontroller. The comments next to each element
+indicate the corresponding GPIO pin number for that channel. */
 adc1_channel_t channel[4] = {
     ADC1_CHANNEL_0, // GPIO36
     ADC1_CHANNEL_3, // GPIO39
@@ -28,6 +31,10 @@ adc1_channel_t channel[4] = {
     ADC1_CHANNEL_7, // GPIO35
 };
 
+/**
+ * The function `dma_init` initializes DMA for continuous ADC conversion and handles any exceptions
+ * that occur during the initialization process.
+ */
 void dma_init()
 {
     try
@@ -53,6 +60,13 @@ TickType_t xDelay500 = 500 / portTICK_PERIOD_MS;
 TickType_t xDelay250 = 250 / portTICK_PERIOD_MS;
 TickType_t xDelay125 = 125 / portTICK_PERIOD_MS;
 
+/**
+ * The function `dma_read_task` continuously performs an ADC DMA read and prints a message to the
+ * serial monitor, with exception handling.
+ *
+ * @param pvParameters The pvParameters parameter is a void pointer that can be used to pass any
+ * additional parameters to the task. In this case, it is not being used and is set to NULL.
+ */
 void dma_read_task(void *pvParameters)
 {
     try
@@ -72,6 +86,13 @@ void dma_read_task(void *pvParameters)
     }
 }
 
+/**
+ * The function `print_buffer_task` continuously prints the contents of a buffer to the serial monitor.
+ *
+ * @param pvParamaters The parameter `pvParamaters` is a void pointer, which means it can be used to
+ * pass any type of data to the task. In this case, it is not being used in the task function, so it
+ * can be ignored.
+ */
 void print_buffer_task(void *pvParamaters)
 {
     try
@@ -91,6 +112,10 @@ void print_buffer_task(void *pvParamaters)
     }
 }
 
+/**
+ * The setup function initializes the Arduino, starts the serial communication, initializes the DMA,
+ * creates tasks for reading DMA data and printing the buffer, and assigns the tasks to core 0.
+ */
 void setup(void)
 {
     initArduino();

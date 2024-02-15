@@ -1,8 +1,8 @@
-#ifndef CHARGECONTROLLER_H
-#define CHARGECONTROLLER_H
+#ifndef CHARGEPROCESSCONTROLLER_H
+#define CHARGEPROCESSCONTROLLER_H
 #include <Arduino.h>
 #include <iostream>
-#include "Type2ControllerDebug.h"
+#include "ACSocketControllerDebug.h"
 
 using namespace std;
 
@@ -34,7 +34,7 @@ typedef struct
     bool evFull = false;
 } EVSE_CONFIG_t;
 
-class ChargeController
+class ChargeProcessController
 {
 public:
     EVSE_CONFIG_t evseConfig;
@@ -43,8 +43,8 @@ public:
     uint8_t ppLimit = 0;
     int8_t stateP = 0;
     int8_t stateN = 0;
-    ChargeController(EVSE_CONFIG_t _evseConfig, const char *_name, uint8_t _id) : evseConfig(_evseConfig), name(_name), id(_id){};
-    ~ChargeController(){};
+    ChargeProcessController(EVSE_CONFIG_t _evseConfig, const char *_name, uint8_t _id) : evseConfig(_evseConfig), name(_name), id(_id){};
+    ~ChargeProcessController(){};
     void INIT();
     uint8_t PP_READ();
     void setMaxCurrent(uint32_t current);

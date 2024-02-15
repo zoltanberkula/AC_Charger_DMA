@@ -10,7 +10,7 @@
 #include <esp_adc_cal.h>
 #include <esp32-hal-adc.h>
 #include "hal_config.h"
-#include "Type2ControllerDebug.h"
+#include "ACSocketControllerDebug.h"
 
 #define ACTIVE_0 0
 #define ACTIVE_R SIDE_RIGHT
@@ -22,7 +22,7 @@
 #define SERIAL_MON_BAUD_RATE 115200 // Serial Monitor Baud Rate
 #define CP_BUFF_SIZE 100
 
-namespace Type2Controller
+namespace ACSocketController
 {
     extern uint8_t chargeMode;
 

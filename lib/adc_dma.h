@@ -93,6 +93,7 @@ extern "C"
 		.format = ADC_OUTPUT_TYPE,
 	};
 
+	// The `print_buffer` function is a helper function that prints the contents of an array. It takes three parameters: `buff`, which is a pointer to the array, `size`, which is the size of the array, and `channel_id`, which is a string identifier for the channel.
 	static void print_buffer(uint16_t *buff, int size, const char *channel_id)
 	{
 		for (size_t i = 0; i < size; i++)

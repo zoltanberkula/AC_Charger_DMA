@@ -1,6 +1,6 @@
-#include "Type2Controller.h"
+#include "ACSocketController.h"
 
-namespace Type2Controller
+namespace ACSocketController
 {
 
     volatile uint16_t cpSample_L; // raw value of the ADC CP_L
@@ -36,28 +36,36 @@ namespace Type2Controller
     hw_timer_t *timer = NULL;                             // timer variable of type hw_timer_t initialized with NULL value
     portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED; // variable of type portMUX_TYPE for synchronization between main loop and ISR
 
-    ChargeController *evseR = nullptr; // ChargeController 1 initialization
-    ChargeController *evseL = nullptr; // ChargeController 2 initialization
+    ChargeProcessController *evseR = nullptr; // ChargeProcessController 1 initialization
+    ChargeProcessController *evseL = nullptr; // ChargeProcessController 2 initialization
 
-    void hmiBtn_INIT(){
-            startBtn->onHigh = [](void *)
-            { DEBUG_LN_TYPE2_CONTROLLER("%s", "Start Btn HIGH");
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "Start Btn HIGH"); };
+    /**
+     * The function hmiBtn_INIT sets up event handlers for the start and stop buttons, printing debug
+     * messages when the buttons are pressed or released.
+     */
+    void hmiBtn_INIT()
+    {
+        startBtn->onHigh = [](void *)
+        { DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Start Btn HIGH");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Start Btn HIGH"); };
 
-            startBtn->onLow = [](void *)
-            { DEBUG_LN_TYPE2_CONTROLLER("%s", "Start Btn LOW");
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "Start Btn LOW"); };
+        startBtn->onLow = [](void *)
+        { DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Start Btn LOW");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Start Btn LOW"); };
 
-            stopBtn->onHigh = [](void *)
-            { DEBUG_LN_TYPE2_CONTROLLER("%s", "Stop Btn HIGH");
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "Stop Btn LOW"); };
+        stopBtn->onHigh = [](void *)
+        { DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Stop Btn HIGH");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Stop Btn LOW"); };
 
-            stopBtn->onLow = [](void *)
-            { DEBUG_LN_TYPE2_CONTROLLER("%s", "Stop Btn LOW");
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "Stop Btn LOW"); };
+        stopBtn->onLow = [](void *)
+        { DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Stop Btn LOW");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "Stop Btn LOW"); };
     };
 
-
+    /**
+     * The function `cpSampler` is an interrupt service routine (ISR) that reads analog values from
+     * pins, stores them in buffers, and resets the buffer indices when they reach the buffer size.
+     */
     void IRAM_ATTR cpSampler() // ISR
     {
         portENTER_CRITICAL_ISR(&timerMux);
@@ -80,6 +88,16 @@ namespace Type2Controller
         }
     }
 
+    /**
+     * The function "getPP" returns the value of ppSample_R if the input "side" is SIDE_RIGHT, and
+     * returns the value of ppSample_L if the input "side" is SIDE_LEFT.
+     *
+     * @param side The parameter "side" is of type uint8_t, which means it is an 8-bit unsigned
+     * integer. It is used to determine which side's ppSample value to return. The possible values for
+     * "side" are defined as SIDE_RIGHT and SIDE_LEFT.
+     *
+     * @return a uint16_t value, which is the value of ppVal.
+     */
     uint16_t getPP(uint8_t side)
     {
         uint16_t ppVal = 0;
@@ -96,57 +114,117 @@ namespace Type2Controller
         return ppVal;
     }
 
+    /**
+     * The function "startGunR" sets a flag to indicate that the "GUNR" process has started.
+     *
+     * @param argc The parameter `argc` stands for "argument count" and represents the number of
+     * command-line arguments passed to the program when it is executed.
+     * @param argv argv is a pointer to an array of pointers to characters. It is used to pass command
+     * line arguments to the main function. Each element in the array represents a command line
+     * argument, where the first element (argv[0]) is the name of the program itself.
+     *
+     * @return an integer value of 0.
+     */
     int startGunR(int argc, char **argv)
     {
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "GUNR Started");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "GUNR Started");
         startGR = true;
         stopGR = false;
         return 0;
     }
 
+    /**
+     * The function "startGunL" sets a flag to indicate that the "GUNL" process has started.
+     *
+     * @param argc The parameter `argc` stands for "argument count" and represents the number of
+     * command-line arguments passed to the program when it is executed.
+     * @param argv argv is a pointer to an array of pointers to characters. It is used to pass command
+     * line arguments to the main function. Each element in the array represents a command line
+     * argument, where the first element (argv[0]) is the name of the program itself.
+     *
+     * @return an integer value of 0.
+     */
     int startGunL(int argc, char **argv)
     {
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "GUNL Started");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "GUNL Started");
         startGL = true;
         stopGL = false;
         return 0;
     }
 
+    /**
+     * The function "stopGunR" stops the "GUNR" process and updates the "stopGR" and "startGR"
+     * variables accordingly.
+     *
+     * @param argc The parameter `argc` stands for "argument count" and represents the number of
+     * command-line arguments passed to the program when it is executed.
+     * @param argv argv is a pointer to an array of pointers to characters. It is used to pass command
+     * line arguments to the main function. Each element in the array represents a command line
+     * argument, with the first element (argv[0]) being the name of the program itself.
+     *
+     * @return an integer value of 0.
+     */
     int stopGunR(int argc, char **argv)
     {
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "GUNR Stopped");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "GUNR Stopped");
         stopGR = true;
         startGR = false;
         return 0;
     }
 
+    /**
+     * The function "stopGunL" stops the "GUNL" and returns 0.
+     *
+     * @param argc The parameter `argc` is an integer that represents the number of command-line
+     * arguments passed to the program.
+     * @param argv An array of strings representing the command-line arguments passed to the program.
+     * The first element (argv[0]) is usually the name of the program itself. The remaining elements
+     * (argv[1], argv[2], etc.) are the arguments passed to the program.
+     *
+     * @return an integer value of 0.
+     */
     int stopGunL(int argc, char **argv)
     {
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "GUNL Stopped");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "GUNL Stopped");
         stopGL = true;
         startGL = false;
         return 0;
     }
 
+    /**
+     * The function "reboot" restarts the program or device.
+     *
+     * @param argc The parameter `argc` stands for "argument count" and represents the number of
+     * command-line arguments passed to the program. It is an integer value.
+     * @param argv argv is a pointer to an array of pointers to null-terminated strings. Each string
+     * represents one of the command-line arguments passed to the program. The last element of the
+     * array is a null pointer.
+     *
+     * @return an integer value of 0.
+     */
     int reboot(int argc, char **argv)
     {
         ESP.restart();
         return 0;
     }
 
+    /**
+     * The EXECUTE function checks the status of various variables and executes different actions based
+     * on their values.
+     */
     void EXECUTE()
     {
         shell.executeIfInput();
         if (startGR == true && stopGR == false)
         {
-            DEBUG_LN_TYPE2_CONTROLLER("%s", evseR->name);
+            DEBUG_LN_ACSOCKET_CONTROLLER("%s", evseR->name);
             evseR->setStates(stateP_R, stateN_R);
             evseR->CHARGE_PROCESS();
         }
         else if (stopGR == true)
         {
             // evseR->setMaxCurrent(0);
-            DEBUG_LN_TYPE2_CONTROLLER("%s", "GUNR OFF");
+            DEBUG_LN_ACSOCKET_CONTROLLER("%s", "GUNR OFF");
             evseR->CONTACTOR_CONTROL(0);
             evseR->MOTOR_CONTROL(0);
             evseR->evseConfig.evFull = false;
@@ -154,20 +232,24 @@ namespace Type2Controller
 
         if (startGL == true && stopGL == false)
         {
-            DEBUG_LN_TYPE2_CONTROLLER("%s", evseL->name);
+            DEBUG_LN_ACSOCKET_CONTROLLER("%s", evseL->name);
             evseL->setStates(stateP_L, stateN_L);
             evseL->CHARGE_PROCESS();
         }
         else if (stopGL == true)
         {
             // evseL->setMaxCurrent(0);
-            DEBUG_LN_TYPE2_CONTROLLER("%s", "GUNL OFF");
+            DEBUG_LN_ACSOCKET_CONTROLLER("%s", "GUNL OFF");
             evseL->CONTACTOR_CONTROL(0);
             evseL->MOTOR_CONTROL(0);
             evseL->evseConfig.evFull = false;
         }
     }
 
+    /**
+     * The function "setStates" calculates the maximum and minimum values from two arrays, and based on
+     * those values, assigns states to variables.
+     */
     void setStates()
     {
         uint16_t tempLMax = 0; // left
@@ -190,8 +272,8 @@ namespace Type2Controller
         }
 
         portEXIT_CRITICAL(&timerMux); // aka Semaphore give
-        DEBUG_LN_TYPE2_CONTROLLER("%u", tempLMax);
-        DEBUG_LN_TYPE2_CONTROLLER("%u", tempRMax);
+        DEBUG_LN_ACSOCKET_CONTROLLER("%u", tempLMax);
+        DEBUG_LN_ACSOCKET_CONTROLLER("%u", tempRMax);
 
         if (tempLMax > 4090 && tempLMax <= 4095)
         {
@@ -222,7 +304,7 @@ namespace Type2Controller
         }
         else
         {
-            DEBUG_LN_TYPE2_CONTROLLER("%u", tempLMin);
+            DEBUG_LN_ACSOCKET_CONTROLLER("%u", tempLMin);
             stateN_L = -1; // Unknown ERROR
         }
 
@@ -255,11 +337,15 @@ namespace Type2Controller
         }
         else
         {
-            DEBUG_LN_TYPE2_CONTROLLER("%u", tempRMin);
+            DEBUG_LN_ACSOCKET_CONTROLLER("%u", tempRMin);
             stateN_R = -1; // Unknown ERROR
         }
     }
 
+    /**
+     * The setup function initializes various parameters and objects for two EVSEs (Electric Vehicle
+     * Supply Equipment) in a C++ program.
+     */
     void setup()
     {
 #ifdef BROWNOUT_OFF
@@ -300,12 +386,19 @@ namespace Type2Controller
         evseLCFG.connectorMaxCurrent = EVSE_MAX_CURRENT_32; // EVSE 2 Params max current for one gun
         evseLCFG.emsPin = EM_STOP_PIN;                      // EVSE 2 Params
 
-        evseR = new ChargeController(evseRCFG, "evseR", SIDE_RIGHT);
-        evseL = new ChargeController(evseLCFG, "evseL", SIDE_LEFT);
+        evseR = new ChargeProcessController(evseRCFG, "evseR", SIDE_RIGHT);
+        evseL = new ChargeProcessController(evseLCFG, "evseL", SIDE_LEFT);
         evseR->INIT(); // EVSE1 Initialization
         evseL->INIT(); // EVSE2 Initialization
     }
 
+    /**
+     * The function `getMode()` returns the mode of operation based on the connection status of two
+     * EVSE devices.
+     *
+     * @return The function `getMode()` returns a value of type `uint8_t`, which represents the mode of
+     * operation. The possible return values are:
+     */
     uint8_t getMode()
     {
         if (evseR->isConnected() == CONNECTED_OK && evseL->isConnected() == CONNECTED_OK)
@@ -326,7 +419,11 @@ namespace Type2Controller
         }
     }
 
-    void dynamicLoadProcess()
+    /**
+     * The function "dynamicLoadDistribution" adjusts the maximum current for the right and left EVSEs
+     * based on the current mode of operation.
+     */
+    void dynamicLoadDistribution()
     {
         if (lastMode != getMode())
         {
@@ -368,29 +465,41 @@ namespace Type2Controller
             }
             default:
             {
-                DEBUG_LN_TYPE2_CONTROLLER("%s", "WARNING wrong dynamic load state");
+                DEBUG_LN_ACSOCKET_CONTROLLER("%s", "WARNING wrong dynamic load state");
                 maxCurrentR = maxCurrentL = 0;
                 break;
             }
             }
         }
 
-        DEBUG_LN_TYPE2_CONTROLLER("MODE: %u", lastMode);
+        DEBUG_LN_ACSOCKET_CONTROLLER("MODE: %u", lastMode);
 
         evseR->setMaxCurrent(maxCurrentR);
         evseL->setMaxCurrent(maxCurrentL);
     }
 
+    /**
+     * The function "loop" performs a series of tasks, including setting states, executing actions, and
+     * dynamically distributing load, and then prints the time it took to complete these tasks.
+     */
     void loop()
     {
         now = millis();
-        DEBUG_LN_TYPE2_CONTROLLER("%s", "START");
+        DEBUG_LN_ACSOCKET_CONTROLLER("%s", "START");
         setStates();
         EXECUTE();
-        dynamicLoadProcess();
-        DEBUG_LN_TYPE2_CONTROLLER("looptime: %lu", millis() - now);
+        dynamicLoadDistribution();
+        DEBUG_LN_ACSOCKET_CONTROLLER("looptime: %lu", millis() - now);
     }
 
+    /**
+     * The function `isConnected` checks if a connector is connected based on its ID.
+     *
+     * @param connectorId The parameter `connectorId` is of type `uint8_t`, which is an unsigned 8-bit
+     * integer. It represents the ID of a connector.
+     *
+     * @return a boolean value.
+     */
     bool isConnected(uint8_t connectorId)
     {
         switch (connectorId)
